@@ -1,37 +1,51 @@
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 #include "process.h"
+#include "parse.h"
+#include "state.h"
+#include "metrics.h"
+#include "scheduler.h"
 
 int main (int argc, char* args[]){
-
-    //Just call error if missing args
-    if (argc < 3){
-        perror("Incorrect nymber of arguments");
+    InputArgs* args_info;
+    args_info = parse_args(argc, args);
+    if (args_info -> process == NULL) {
+        perror("Missing Process input");
         return 1;
     }
 
-    //static int global_time = 0; might be inside the algorithms instead
+    //Initialize sched state, its going to be used in all parts
+    SchedulerState* sched_state = (SchedulerState*) malloc(sizeof(SchedulerState));
+    memset(sched_state, 0, sizeof(SchedulerState));
 
-    //get the metrics part of the info
+    //Populate the sched_state
+    sched_state -> processes = get_process(args_info -> process);
+    sched_state -> num_processes = count_processes(args_info -> process);
 
-    //Find where to send the process info
-    char* algorithm_info = strdup(args[1]);
-    algorithm_info = strtok(algorithm_info,"=");
 
-    char* algotrithm_name = strtok(NULL, "=");
+    print_scheduler_state(sched_state);//DEBUG   
+    
+    SchedulingAlgorithm algorithm;
 
-    if (!strcmp(algotrithm_name, "FCFS")) {
-        //do FCFS func
+    //Find where to send the process info 
+    if (!strcmp(args_info -> algorithm, "FCFS")) {
+        algorithm = schedule_fcfs;
 
-    } else if (!strcmp(algotrithm_name, "RR")) {
-        //else do round robin func
+    } else if (!strcmp(args_info -> algorithm, "RR")) {
+        algorithm = schedule_rr;
 
-    } else if (!strcmp(algotrithm_name, "SJF")) {
-        //sjf
+    } else if (!strcmp(args_info -> algorithm, "SJF")) {
+        algorithm = schedule_sjf;
 
-    } else if (!strcmp(algotrithm_name, "STCF")) {
-        //stcf
+    } else if (!strcmp(args_info -> algorithm, "STCF")) {
+        algorithm = schedule_stcf;
+    } else{
+        perror("Missing algorithm value");
     }
 
-    free(algorithm_info);
+    simulate_scheduler(sched_state, algorithm);
+    free(args_info);
 }
+

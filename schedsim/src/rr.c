@@ -1,9 +1,10 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include "../include/process.h"
+#include <limits.h>
 
-#include "../include/scheduler.h"
-#include "../include/gantt.h"
+#include "process.h"
+#include "scheduler.h"
+#include "gantt.h"
+#include "state.h"
 
 #define MAX_QUEUE 1000
 
@@ -46,7 +47,6 @@ int schedule_rr(SchedulerState *state, int quantum){
 
         /* Execute process */
         for (int t = 0; t < run_time; t++) {
-            gantt_record(time, proc->pid);
             time++;
 
             /* Check for newly arriving processes */

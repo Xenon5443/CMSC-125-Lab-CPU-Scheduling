@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <limits.h>
-#include "../include/process.h"
 
-#include "../include/scheduler.h"
-#include "../include/gantt.h"
+#include "process.h"
+#include "scheduler.h"
+#include "gantt.h"
+#include "state.h"
 
 int schedule_stcf(SchedulerState *state){
     Process *p = state->processes;
@@ -29,7 +30,6 @@ int schedule_stcf(SchedulerState *state){
 
         /* If no process ready */
         if (shortest == -1) {
-            gantt_record(time, "-");
             time++;
             continue;
         }
@@ -40,9 +40,6 @@ int schedule_stcf(SchedulerState *state){
         if (proc->start_time == -1) {
             proc->start_time = time;
         }
-
-        /* Execute for 1 time unit */
-        gantt_record(time, proc->pid);
 
         proc->remaining_time--;
         time++;
