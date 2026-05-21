@@ -1,35 +1,42 @@
-all: schedsim
+CC       := gcc
+CFLAGS   := -Wall -Wextra -Iinclude -g
+LDFLAGS  := 
 
-schedsim: main.o fcfs.o sjf.o process.o utils.o -o schedsim
-	@gcc main.o fcfs.o sjf.o process.o utils.o -o schedsim
+SRC_DIR  := src
+OBJ_DIR  := obj
+BIN_NAME := schedsim
 
-main.o: src/main.c
-	@gcc -c src/main.c
+SRCS     := $(wildcard $(SRC_DIR)/*.c)
+OBJS     := $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 
-fcfs.o: src/fcfs.c
-	@gcc -c src/fcfs.c
+all: $(BIN_NAME)
 
-sjf.o: src/sjf.c
-	@gcc -c src/sjf.c
+build: all
 
-process.o: src/process.c
-	@gcc -c src/process.c
+$(BIN_NAME): $(OBJS)
+	@mkdir -p $(@D)
+	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
-utils.o: src/utils.c
-	@gcc -c src/utils.c
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) -c $< -o $@
 
-run: all
-@./schedsim --algorithm= --processes="A:0:240,B:10:180,C:20:150"
+PROCS    := "A:10:240,B:10:180,C:5:5"
 
 runFCFS: all
-	@./schedsim --algorithm=FCFS --processes="A:0:240,B:10:180,C:20:150"
+	@./$(BIN_NAME) --algorithm=FCFS --processes=$(PROCS)
 
 runSJF: all
-	@./schedsim --algorithm=SJF --processes="A:0:240,B:10:180,C:20:150"
+	@./$(BIN_NAME) --algorithm=SJF --processes=$(PROCS)
 
-# runTest: all
-# 	@./lab1 tester.txt
+runRR: all
+	@./$(BIN_NAME) --algorithm=RR --processes=$(PROCS)
+
+runSTCF: all
+	@./$(BIN_NAME) --algorithm=STCF --processes=$(PROCS)
 
 clean:
 	@echo "removed object and program files"
-	@rm -f *.o schedsim
+	@rm -rf $(OBJ_DIR) $(BIN_NAME)
+
+.PHONY: all build run runFCFS runSJF clean
