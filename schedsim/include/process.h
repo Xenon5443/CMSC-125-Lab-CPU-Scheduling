@@ -13,4 +13,7 @@ typedef struct {
     int time_in_queue;      // For MLFQ allotment tracking
 } Process;
 
+int count_processes(char* process_str);
+Process* get_process(char* process_str);
+
 #endif
